@@ -1,0 +1,15 @@
+server {
+  listen 80;
+
+  location /graphql {
+    proxy_pass http://backend:${BACKEND_PORT};
+    proxy_http_version 1.1;
+    proxy_set_header Connection 'upgrade';
+  }
+
+  location / {
+    proxy_pass http://frontend:${FRONTEND_PORT};
+    proxy_http_version 1.1;
+    proxy_set_header Connection 'upgrade';
+  }
+}

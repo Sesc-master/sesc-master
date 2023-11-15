@@ -1,0 +1,16 @@
+/build
+
+# Yarn without zero-installs
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# IDEs
+/.idea
+/.vscode
+
+.env.local

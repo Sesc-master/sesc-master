@@ -1,0 +1,1 @@
+export type GoldinReportCard = Map<string, Map<string, string>>;

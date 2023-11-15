@@ -1,0 +1,1 @@
+export type ReportCard = Map<string, Array<string | undefined>>;

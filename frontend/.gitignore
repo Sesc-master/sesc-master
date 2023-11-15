@@ -1,0 +1,26 @@
+
+# Yarn without zero-installs
+.yarn/*
+!.yarn/patches
+!.yarn/releases
+!.yarn/plugins
+!.yarn/sdks
+!.yarn/versions
+.pnp.*
+
+# Dependencies
+/node_modules
+
+# IDEs
+/.idea
+/.vscode
+
+# testing
+/coverage
+**.js.map
+
+# production
+/build
+/https_cert
+/public/sw.js
+/public/workbox-*.js

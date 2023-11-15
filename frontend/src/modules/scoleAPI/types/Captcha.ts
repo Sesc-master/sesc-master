@@ -1,0 +1,1 @@
+export type Captcha = {ID: number, data: string}

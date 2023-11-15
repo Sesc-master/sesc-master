@@ -1,0 +1,28 @@
+@import "../../../../styles/variables";
+
+.main {
+    margin: 5px;
+    border-radius: 8px;
+    background-color: $gray;
+}
+
+.subject {
+    padding: 8px;
+}
+
+.flex {
+    display: flex;
+}
+
+.cell {
+    width: calc(100% / 7);
+    text-align: center;
+}
+
+.cellItem {
+    background-color: $bodyColor;
+    border-radius: 6px;
+    margin: 0.2em;
+    height: 1.5em;
+}
+

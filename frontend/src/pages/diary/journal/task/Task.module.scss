@@ -1,0 +1,73 @@
+@import "../../../../styles/variables";
+
+.table {
+  border-radius: 7px;
+  background-color: $gray;
+  padding: 0.25em;
+}
+
+.main {
+  display: flex;
+  min-height: 90px;
+  justify-content: space-between;
+}
+
+.cell {
+  border-radius: 7px;
+  background-color: $bodyColor;
+}
+
+.taskDate {
+  flex-basis: 3em;
+}
+
+.text {
+  padding: 2px;
+  flex-basis: calc(100% - 9em);
+  overflow-y: hidden;
+}
+
+.center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.bold {
+  font-weight: 1000;
+}
+
+.mark {
+  height: 47%;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  flex-basis: 5em;
+  justify-content: space-between;
+}
+
+.moreInfo {
+  margin-top: 0.25em;
+  min-height: 50px;
+}
+
+.styledTask {
+  font-size: 15px;
+}
+
+.hidden {
+  visibility: hidden;
+  display: none;
+}
+
+.instruction {
+  font-size: 17px;
+  font-weight: 600;
+  text-decoration: underline 2px;
+  position: relative;
+  bottom:0;
+  left:0;
+  margin: 2px;
+}

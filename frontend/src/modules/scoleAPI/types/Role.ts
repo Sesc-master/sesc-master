@@ -1,0 +1,1 @@
+export type Role = "root" | "admin" | "teacher" | "tutor" | "pupil" | "parent"

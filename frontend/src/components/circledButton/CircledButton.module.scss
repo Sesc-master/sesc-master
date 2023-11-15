@@ -1,0 +1,15 @@
+@import "src/styles/variables";
+
+.button {
+  padding: 1em;
+  margin: 0.5em;
+  background-color: $blue;
+  color: white;
+  border: 0;
+  border-radius: 2em;
+  font-size: large;
+}
+
+.button:active {
+  background-color: #329cf3;
+}
