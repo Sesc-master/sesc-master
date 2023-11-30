@@ -2,16 +2,16 @@ import {createClient, RedisClientType} from 'redis';
 
 const getConnectedClient = (): Promise<RedisClientType> => {
   return new Promise((resolve) => {
-    const returnClient = () => {
-      const client = createClient({
-        socket: {
-          host: 'cache',
-          port: 6379
-        }
-      });
-      client.on('error', err => console.log('Redis Client Error', err));
-      client.connect();
+    const client = createClient({
+      socket: {
+        host: 'cache',
+        port: 6379
+      }
+    });
+    client.on('error', err => console.log('Redis Client Error', err));
+    client.connect();
 
+    const returnClient = () => {
       if (client.isReady) {
         resolve(client as RedisClientType);
       } else {
