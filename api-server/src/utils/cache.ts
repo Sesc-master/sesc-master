@@ -31,6 +31,7 @@ export default class Cache<T> implements ICache<T> {
   public async getValue(): Promise<T> {
     const client = await getConnectedClient();
     const res = JSON.parse(await client.get(this.key) || '{}', reviver);
+    await client.disconnect();
     return new Promise<T>(resolve => resolve(res));
   }
 
@@ -42,6 +43,7 @@ export default class Cache<T> implements ICache<T> {
     if (isChanged) {
       await client.set(this.key, JSON.stringify(newValue, replacer));
     }
+    await client.disconnect();
     return new Promise<boolean>(resolve => resolve(isChanged));
   }
 }

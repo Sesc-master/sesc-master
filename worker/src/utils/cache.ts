@@ -23,25 +23,27 @@ function reviver(key: string, value: any) {
 }
 
 export default class Cache<T> implements ICache<T> {
-    protected key: string = '';
-    constructor(key: string) {
-      this.key = key;
-    }
+  protected key: string = '';
+  constructor(key: string) {
+    this.key = key;
+  }
 
-    public async getValue(): Promise<T> {
-        const client = await getConnectedClient();
-        const res = JSON.parse(await client.get(this.key) || '{}', reviver);
-        return new Promise<T>(resolve => resolve(res));
-    }
+  public async getValue(): Promise<T> {
+    const client = await getConnectedClient();
+    const res = JSON.parse(await client.get(this.key) || '{}', reviver);
+    await client.disconnect();
+    return new Promise<T>(resolve => resolve(res));
+  }
 
-    public async updateValue(newValue: T): Promise<boolean> {
-      const client = await getConnectedClient();
-      const res = JSON.parse(await client.get(this.key) || '{}', reviver);
-      let isChanged = !isEqual(res, newValue);
+  public async updateValue(newValue: T): Promise<boolean> {
+    const client = await getConnectedClient();
+    const res = JSON.parse(await client.get(this.key) || '{}', reviver);
+    let isChanged = !isEqual(res, newValue);
 
-      if (isChanged) {
-        await client.set(this.key, JSON.stringify(newValue, replacer));
-      }
-      return new Promise<boolean>(resolve => resolve(isChanged));
+    if (isChanged) {
+      await client.set(this.key, JSON.stringify(newValue, replacer));
     }
+    await client.disconnect();
+    return new Promise<boolean>(resolve => resolve(isChanged));
+  }
 }
