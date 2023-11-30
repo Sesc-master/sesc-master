@@ -43,7 +43,7 @@ services:
         BACKEND_PORT: ${API_SERVER_PORT}
     restart: always
     ports:
-      - ${NGINX_PORT}:80
+      - ${NGINX_PORT}:${NGINX_PORT}
 
 volumes:
   cache:
