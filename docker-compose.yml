@@ -39,7 +39,7 @@ services:
       dockerfile: ./nginx/Dockerfile
       args:
         NGINX_PORT: ${NGINX_SERVICE_PORT}
-        FRONTEND_PORT: ${FRONTEND_PORT}
+        FRONTEND_PORT: ${FRONTEND_SERVICE_PORT}
         BACKEND_PORT: ${API_SERVER_PORT}
     ports:
       - ${NGINX_SERVICE_PORT}:${NGINX_SERVICE_PORT}
