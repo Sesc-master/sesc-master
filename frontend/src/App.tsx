@@ -71,9 +71,6 @@ const App = () => {
 							<ModalPage name={Modal.Grades}>
 								<Grades />
 							</ModalPage>
-							<ModalPage name={Modal.Grades}>
-								<Grades />
-							</ModalPage>
 							<ModalPage name={Modal.Subjects}>
 								<Subjects />
 							</ModalPage>

@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import Icon from "../../components/icon/Icon"
-import {appSettingsStore, setIsFullClassesListModal, setNavbarItems} from "../../modules/effector/AppSettingsStore"
+import {appSettingsStore, setNavbarItems} from "../../modules/effector/AppSettingsStore"
 import {useStore} from "effector-react";
 import {NavbarItem, defaultItems} from '../../components/navbar/NavbarItems'
 import {StorageKey} from "../../modules/StorageKey";
@@ -9,13 +9,13 @@ import {List, ListSubheader, ListItemButton, ListItemText, ListItemIcon, Checkbo
 import {Page} from "../../components/projectRoot/Page";
 
 const Settings = () => {
-    const {navbarItems, isFullClassesListModal} = useStore(appSettingsStore);
+    const {navbarItems} = useStore(appSettingsStore);
     const [initialPage, setInitialPage] = useState(getInitialPage());
 
-    const setItems = (list: NavbarItem[]) => {
+    const setItems = useCallback((list: NavbarItem[]) => {
         setNavbarItems(list);
         localStorage.setItem(StorageKey.NavbarItems, JSON.stringify(list))
-    }
+    }, []);
 
     // const reorderItems = (from: number, to: number, items: NavbarItem[]) => {
     //     const list = [...items];
@@ -98,15 +98,15 @@ const Settings = () => {
                     )
                 })}
             </List>
-            <ListSubheader component="div" id="nested-list-subheader">
-                Отображать список классов сразу
-                <Checkbox
-                    edge="end"
-                    checked={isFullClassesListModal}
-                    disableRipple
-                    onClick={() => setIsFullClassesListModal(!isFullClassesListModal)}
-                />
-            </ListSubheader>
+            {/*<ListSubheader component="div" id="nested-list-subheader">*/}
+            {/*    Отображать список классов сразу*/}
+            {/*    <Checkbox*/}
+            {/*        edge="end"*/}
+            {/*        checked={isFullClassesListModal}*/}
+            {/*        disableRipple*/}
+            {/*        onClick={() => setIsFullClassesListModal(!isFullClassesListModal)}*/}
+            {/*    />*/}
+            {/*</ListSubheader>*/}
         </>
     );
 };

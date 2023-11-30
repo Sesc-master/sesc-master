@@ -1,4 +1,4 @@
-import React, {useState} from "react";
+import React, {useMemo, useState} from "react";
 
 import Options from "../../../components/options/Options"
 import {appSettingsStore, setModalView} from "../../../modules/effector/AppSettingsStore";
@@ -10,12 +10,10 @@ import {useStore} from "effector-react";
 const Grades = () => {
     const [classNumber, setClassNumber] = useState("");
     const {classes} = useStore(timetableStore);
-    const {isFullClassesListModal} = useStore(appSettingsStore);
-
-    const classesNumbers = Array.from(new Set(classes.map(className => className.slice(0, -1))));
-
-    const isClassesList = isFullClassesListModal || (classNumber !== ""),
-        selectableClasses = isFullClassesListModal ? classes : classes.filter(className => className.startsWith(classNumber));
+    const isFullClassesListModal = useMemo(() => true, []);
+    const classesNumbers = useMemo(() => Array.from(new Set(classes.map(className => className.slice(0, -1)))), []);
+    const isClassesList = useMemo(() => isFullClassesListModal || (classNumber !== ""), []);
+    const selectableClasses = useMemo(() => isFullClassesListModal ? classes : classes.filter(className => className.startsWith(classNumber)), []);
 
     return (
         <>
