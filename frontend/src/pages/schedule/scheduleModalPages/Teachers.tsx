@@ -11,14 +11,16 @@ const Teachers = () => {
     const {teachers} = useStore(timetableStore);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    if (teachers.length == 0) useEffect(() => {
-        setIsLoading(true)
+    useEffect(() => {
+        if (teachers.length == 0) {
+            setIsLoading(true)
 
-        getNames("teacher")
-            .then(teachers => {
-                setIsLoading(false);
-                setTeachers(teachers);
-            })
+            getNames("teacher")
+                .then(teachers => {
+                    setIsLoading(false);
+                    setTeachers(teachers);
+                })
+        }
     }, [])
 
     return (
