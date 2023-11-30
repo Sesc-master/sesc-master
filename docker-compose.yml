@@ -27,7 +27,8 @@ services:
       - '6379:6379'
     command: redis-server --save 20 1 --loglevel warning
     volumes:
-      - cache:/data
+      - "./data/redis/data:/data"
+      - "./data/redis/config:/conf"
   worker:
     build:
       context: .
