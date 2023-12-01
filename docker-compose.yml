@@ -1,15 +1,19 @@
 version: '3.8'
 services:
   backend:
+    depends_on:
+      - redis
     build:
       context: .
       dockerfile: ./api-server/Dockerfile
-      args:
-        PORT: ${API_SERVER_PORT}
-        SESC_REQUEST_LOCK_DELAY: ${SESC_REQUEST_LOCK_DELAY}
-        SCHEDULES_MAX_PARALLEL_REQUESTS: ${SESC_REQUEST_LOCK_DELAY}
-        GRAPHQL_LANDING_PAGE: ${GRAPHQL_LANDING_PAGE}
-        SCHEDULING_TZ: ${SCHEDULING_TZ}
+    environment:
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_HOST: ${REDIS_HOST}
+      PORT: ${API_SERVER_PORT}
+      SESC_REQUEST_LOCK_DELAY: ${SESC_REQUEST_LOCK_DELAY}
+      SCHEDULES_MAX_PARALLEL_REQUESTS: ${SESC_REQUEST_LOCK_DELAY}
+      GRAPHQL_LANDING_PAGE: ${GRAPHQL_LANDING_PAGE}
+      SCHEDULING_TZ: ${SCHEDULING_TZ}
     ports:
       - ${API_SERVER_PORT}:${API_SERVER_PORT}
     restart: always
@@ -20,19 +24,31 @@ services:
     ports:
       - ${FRONTEND_SERVICE_PORT}:${FRONTEND_SERVICE_PORT}
     restart: always
-  cache:
-    image: redis:6.2-alpine
-    restart: always
+  redis:
+    build: ./redis/
+    restart: unless-stopped
     ports:
-      - '6379:6379'
-    command: redis-server --save 20 1 --loglevel warning
+      - "6379:6379"
+    expose:
+      - "6379"
     volumes:
-      - "./data/redis/data:/data"
-      - "./data/redis/config:/conf"
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - 'API_PORT=6379'
+      - 'NODE_ENV=production'
   worker:
+    depends_on:
+      - redis
     build:
       context: .
       dockerfile: ./worker/Dockerfile
+    environment:
+      REDIS_PORT: ${REDIS_PORT}
+      REDIS_HOST: ${REDIS_HOST}
+      SESC_REQUEST_LOCK_DELAY: ${SESC_REQUEST_LOCK_DELAY}
+      SCHEDULES_MAX_PARALLEL_REQUESTS: ${SESC_REQUEST_LOCK_DELAY}
+      GRAPHQL_LANDING_PAGE: ${GRAPHQL_LANDING_PAGE}
+      SCHEDULING_TZ: ${SCHEDULING_TZ}
     restart: always
   nginx:
     build:
@@ -47,5 +63,5 @@ services:
     restart: always
 
 volumes:
-  cache:
+  redis:
     driver: local
