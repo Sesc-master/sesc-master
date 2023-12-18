@@ -17,6 +17,7 @@ import {Captcha} from "./types/Captcha";
 import {parseYearTimings} from "./iniParsing/yearTimings";
 import {parseDefaultSubjects} from "./iniParsing/defaultSubjects";
 import {parseRolesNames} from "./iniParsing/rolesNames";
+import {parseAbsentDocsNames} from "./iniParsing/absentDocs";
 
 const JOURNAL_URL = "https://lycreg.urfu.ru";
 
@@ -33,11 +34,12 @@ export async function getJournalVars() {
         return {
             yearTimings: parseYearTimings(script),
             roleNames: parseRolesNames(script),
-            subjectNames: parseDefaultSubjects(script)
+            subjectNames: parseDefaultSubjects(script),
+            absentDocsNames: parseAbsentDocsNames(script)
         }
   }
   catch {
-        return {yearTimings: null, roleNames: null, subjectNames: null}
+        return {yearTimings: null, roleNames: null, subjectNames: null, absentDocsNames: null}
   }
 }
 
