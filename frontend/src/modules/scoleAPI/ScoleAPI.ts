@@ -14,10 +14,93 @@ import {ReportCard} from "./types/ReportCard";
 import convertReportCard from "./converters/reportCard";
 import {LoginInfo} from "./types/LoginInfo";
 import {Captcha} from "./types/Captcha";
+import {YearTimings} from "./types/YearTimings";
 
 function convertRoleForAPI(role: Role): string {
     if (role == "parent") return "par";
     else return role;
+}
+
+export const getJournalVars = async () => {
+  try {
+    const code = await fetch('https://lycreg.urfu.ru/js/ini.js')
+      .then((res) => res.text());
+
+    eval(`try { ${code}
+    window.STPER = STPER;
+    window.roleNames = roleNames;
+    window.subjDef = subjDef;
+  } catch {}`);
+
+    const parseDate = (dateString: string): Date => {
+      const [day, month] = dateString.split('.').map(Number);
+
+      if (new Date().getMonth() + 1 >= 1 && new Date().getMonth() + 1 <= 7) {
+        if (month >= 1 && month <= 7) {
+          return new Date(new Date().getFullYear(), month - 1, day);
+        } else {
+          return new Date(new Date().getFullYear() - 1, month - 1, day);
+        }
+      } else {
+        if (month >= 1 && month <= 7) {
+          return new Date(new Date().getFullYear() + 1, month - 1, day);
+        } else {
+          return new Date(new Date().getFullYear(), month - 1, day);
+        }
+      }
+    };
+    const STPERArray = (window as any).STPER;
+
+    const yearTimings: YearTimings = {
+      firstQuarter: {
+        name: STPERArray[0][1],
+        start: parseDate(STPERArray[0][2]),
+        end: parseDate(STPERArray[0][3])
+      },
+      secondQuarter: {
+        name: STPERArray[1][1],
+        start: parseDate(STPERArray[1][2]),
+        end: parseDate(STPERArray[1][3])
+      },
+      firstSemester: {
+        name: STPERArray[2][1],
+        start: parseDate(STPERArray[2][2]),
+        end: parseDate(STPERArray[2][3])
+      },
+      thirdQuarter: {
+        name: STPERArray[3][1],
+        start: parseDate(STPERArray[3][2]),
+        end: parseDate(STPERArray[3][3])
+      },
+      fourthQuarter: {
+        name: STPERArray[4][1],
+        start: parseDate(STPERArray[4][2]),
+        end: parseDate(STPERArray[4][3])
+      },
+      secondSemester: {
+        name: STPERArray[5][1],
+        start: parseDate(STPERArray[5][2]),
+        end: parseDate(STPERArray[5][3])
+      },
+      year: {
+        name: STPERArray[6][1],
+        start: parseDate(STPERArray[6][2]),
+        end: parseDate(STPERArray[6][3])
+      }
+    };
+
+    return {
+      yearTimings: yearTimings as YearTimings,
+      roleNames: (window as any).roleNames as Array<string []>,
+      subjectNames: new Map(Object.entries((window as any).subjDef)) as Subjects
+    }
+  } catch {
+    return {
+      yearTimings: null,
+      roleNames: null,
+      subjectNames: null
+    }
+  }
 }
 
 async function scoleRequest(methodName: string, login: string, token: string, role: Role, args?: Array<string>, reviverObjects?: Array<Array<string>>): Promise<any | "none"> {
@@ -72,9 +155,10 @@ const defaultSubjects: Map<string, string> = new Map([
 var subjectListCache: Subjects = new Map();
 
 export async function getSubjectList(login: string, token: string, role: Role): Promise<Subjects | undefined> {
-    return scoleRequest("subjList", login, token, role).then(subjects => {
+    return scoleRequest("subjList", login, token, role).then(async subjects => {
         if (subjects) {
-            defaultSubjects.forEach((name, id) => subjects.set(id, name));
+            const { subjectNames } = await getJournalVars();
+            (subjectNames || defaultSubjects).forEach((name, id) => subjects.set(id, name));
             subjectListCache = subjects;
             return subjects;
         }
