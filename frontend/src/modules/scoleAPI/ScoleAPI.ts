@@ -27,10 +27,10 @@ export const getJournalVars = async () => {
       .then((res) => res.text());
 
     eval(`try { ${code}
-    window.STPER = STPER;
-    window.roleNames = roleNames;
-    window.subjDef = subjDef;
-  } catch {}`);
+        window.STPER = STPER;
+        window.roleNames = roleNames;
+        window.subjDef = subjDef;
+    } catch {}`);
 
     const parseDate = (dateString: string): Date => {
       const [day, month] = dateString.split('.').map(Number);
@@ -51,41 +51,50 @@ export const getJournalVars = async () => {
     };
     const STPERArray = (window as any).STPER;
 
+    console.log(STPERArray);
+
     const yearTimings: YearTimings = {
       firstQuarter: {
-        name: STPERArray[0][1],
+        name: STPERArray[0][0],
         start: parseDate(STPERArray[0][2]),
-        end: parseDate(STPERArray[0][3])
+        end: parseDate(STPERArray[0][3]),
+        originalDates: [STPERArray[0][2], STPERArray[0][3]]
       },
       secondQuarter: {
-        name: STPERArray[1][1],
+        name: STPERArray[1][0],
         start: parseDate(STPERArray[1][2]),
-        end: parseDate(STPERArray[1][3])
+        end: parseDate(STPERArray[1][3]),
+        originalDates: [STPERArray[1][2], STPERArray[1][3]]
       },
       firstSemester: {
-        name: STPERArray[2][1],
+        name: STPERArray[2][0],
         start: parseDate(STPERArray[2][2]),
-        end: parseDate(STPERArray[2][3])
+        end: parseDate(STPERArray[2][3]),
+        originalDates: [STPERArray[2][2], STPERArray[2][3]]
       },
       thirdQuarter: {
-        name: STPERArray[3][1],
+        name: STPERArray[3][0],
         start: parseDate(STPERArray[3][2]),
-        end: parseDate(STPERArray[3][3])
+        end: parseDate(STPERArray[3][3]),
+        originalDates: [STPERArray[3][2], STPERArray[3][3]]
       },
       fourthQuarter: {
-        name: STPERArray[4][1],
+        name: STPERArray[4][0],
         start: parseDate(STPERArray[4][2]),
-        end: parseDate(STPERArray[4][3])
+        end: parseDate(STPERArray[4][3]),
+        originalDates: [STPERArray[4][2], STPERArray[4][3]]
       },
       secondSemester: {
-        name: STPERArray[5][1],
+        name: STPERArray[5][0],
         start: parseDate(STPERArray[5][2]),
-        end: parseDate(STPERArray[5][3])
+        end: parseDate(STPERArray[5][3]),
+        originalDates: [STPERArray[5][2], STPERArray[5][3]]
       },
       year: {
-        name: STPERArray[6][1],
+        name: STPERArray[6][0],
         start: parseDate(STPERArray[6][2]),
-        end: parseDate(STPERArray[6][3])
+        end: parseDate(STPERArray[6][3]),
+        originalDates: [STPERArray[6][2], STPERArray[6][3]]
       }
     };
 
@@ -217,6 +226,13 @@ export async function login(login: string, password: string, role: Role, captcha
 }
 
 export async function getJournal(login: string, token: string, role: Role, subjects: Subjects = subjectListCache, teachers: Array<Teacher> = teachersListCache): Promise<Journal | undefined> {
+    const { yearTimings } = await getJournalVars();
+
+    if (yearTimings) {
+        return scoleRequest("jrnGet", login, token, role, [], [])
+            .then(goldinJournal => convertJournal(goldinJournal, subjects, teachers, yearTimings));
+    }
+
     return scoleRequest("jrnGet", login, token, role, [], [])
         .then(goldinJournal => convertJournal(goldinJournal, subjects, teachers));
 }

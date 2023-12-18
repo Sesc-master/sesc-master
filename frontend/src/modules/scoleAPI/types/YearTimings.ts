@@ -1,4 +1,5 @@
 export interface JournalTiming {
+  originalDates: string [],
   name: string,
   start: Date,
   end: Date

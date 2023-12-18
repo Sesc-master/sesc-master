@@ -1,5 +1,8 @@
-import React from "react";
+import React, {useMemo} from "react";
 import styles from "./MarksTable.module.scss"
+import {useStore} from "effector-react";
+import {diaryStore} from "../../../../modules/effector/DiaryStore";
+import AvgMarks from "../../avgMarks/AvgMarks";
 
 type IMarksTable = {
     marks: string | number [],
@@ -7,6 +10,9 @@ type IMarksTable = {
 }
 
 const MarksTable = ({marks, subject} : IMarksTable) => {
+    const {diary} = useStore(diaryStore)
+    const { avgMarks } = useMemo(() => diary.get(subject), [diary, subject])
+
     return(
         <div className={styles.main}>
             <div className={styles.subject}>{subject}</div>
@@ -40,6 +46,7 @@ const MarksTable = ({marks, subject} : IMarksTable) => {
                     <div className={styles.cellItem}>{marks[5]}</div>
                 </div>
             </div>
+            <AvgMarks avgMarks={avgMarks} />
         </div>
     )
 }

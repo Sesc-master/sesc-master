@@ -8,6 +8,7 @@ import styles from "./Journal.module.scss"
 import dateComparator from "../../../modules/scoleAPI/date/dateComparator";
 import Select from "../../../components/select/Select";
 import {ToggleButton, ToggleButtonGroup, Grid} from "@mui/material";
+import AvgMarks from "../avgMarks/AvgMarks";
 
 enum ISortingType {
     NewerToOlder = 1,
@@ -16,7 +17,7 @@ enum ISortingType {
 
 const Journal = () => {
     const {diary, targetSubject} = useStore(diaryStore)
-    const teacher = diary.get(targetSubject)?.teacher
+    const { teacher, avgMarks } = useMemo(() => diary.get(targetSubject), [diary, targetSubject])
     const [sortingType, setSortingType] = useState<ISortingType>(ISortingType.NewerToOlder);
 
     const tasks = useMemo(() => {
@@ -59,6 +60,9 @@ const Journal = () => {
                   </ToggleButtonGroup>
               </Grid>
             )}
+            {tasks && avgMarks && <Grid mb={2}>
+              <AvgMarks avgMarks={avgMarks} />
+            </Grid>}
             {tasks && Array.from(tasks)?.map((task: any, index) =>
             (<div className={styles.task} key={index}>
                 <Task
