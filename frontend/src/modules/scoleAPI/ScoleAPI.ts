@@ -26,6 +26,7 @@ function convertRoleForAPI(role: Role): string {
     else return role;
 }
 
+
 export async function getJournalVars() {
     try {
         let script = await fetch(`${JOURNAL_URL}/js/ini.js`)
@@ -126,6 +127,13 @@ export async function login(login: string, password: string, role: Role, captcha
 }
 
 export async function getJournal(login: string, token: string, role: Role, subjects: Subjects = subjectListCache, teachers: Array<Teacher> = teachersListCache): Promise<Journal | undefined> {
+    const { yearTimings } = await getJournalVars();
+
+    if (yearTimings) {
+        return scoleRequest("jrnGet", login, token, role, [], [])
+            .then(goldinJournal => convertJournal(goldinJournal, subjects, teachers, yearTimings));
+    }
+
     return scoleRequest("jrnGet", login, token, role, [], [])
         .then(goldinJournal => convertJournal(goldinJournal, subjects, teachers));
 }
