@@ -14,101 +14,33 @@ import {ReportCard} from "./types/ReportCard";
 import convertReportCard from "./converters/reportCard";
 import {LoginInfo} from "./types/LoginInfo";
 import {Captcha} from "./types/Captcha";
-import {YearTimings} from "./types/YearTimings";
+import {parseYearTimings} from "./iniParsing/yearTimings";
+import {parseDefaultSubjects} from "./iniParsing/defaultSubjects";
+import {parseRolesNames} from "./iniParsing/rolesNames";
+import {parseAbsentDocsNames} from "./iniParsing/absentDocs";
+
+const JOURNAL_URL = "https://lycreg.urfu.ru";
 
 function convertRoleForAPI(role: Role): string {
     if (role == "parent") return "par";
     else return role;
 }
 
-export const getJournalVars = async () => {
-  try {
-    const code = await fetch('https://lycreg.urfu.ru/js/ini.js')
-      .then((res) => res.text());
 
-    eval(`try { ${code}
-        window.STPER = STPER;
-        window.roleNames = roleNames;
-        window.subjDef = subjDef;
-    } catch {}`);
+export async function getJournalVars() {
+    try {
+        let script = await fetch(`${JOURNAL_URL}/js/ini.js`)
+            .then(response => response.text());
 
-    const parseDate = (dateString: string): Date => {
-      const [day, month] = dateString.split('.').map(Number);
-
-      if (new Date().getMonth() + 1 >= 1 && new Date().getMonth() + 1 <= 7) {
-        if (month >= 1 && month <= 7) {
-          return new Date(new Date().getFullYear(), month - 1, day);
-        } else {
-          return new Date(new Date().getFullYear() - 1, month - 1, day);
+        return {
+            yearTimings: parseYearTimings(script),
+            roleNames: parseRolesNames(script),
+            subjectNames: parseDefaultSubjects(script),
+            absentDocsNames: parseAbsentDocsNames(script)
         }
-      } else {
-        if (month >= 1 && month <= 7) {
-          return new Date(new Date().getFullYear() + 1, month - 1, day);
-        } else {
-          return new Date(new Date().getFullYear(), month - 1, day);
-        }
-      }
-    };
-    const STPERArray = (window as any).STPER;
-
-    console.log(STPERArray);
-
-    const yearTimings: YearTimings = {
-      firstQuarter: {
-        name: STPERArray[0][0],
-        start: parseDate(STPERArray[0][2]),
-        end: parseDate(STPERArray[0][3]),
-        originalDates: [STPERArray[0][2], STPERArray[0][3]]
-      },
-      secondQuarter: {
-        name: STPERArray[1][0],
-        start: parseDate(STPERArray[1][2]),
-        end: parseDate(STPERArray[1][3]),
-        originalDates: [STPERArray[1][2], STPERArray[1][3]]
-      },
-      firstSemester: {
-        name: STPERArray[2][0],
-        start: parseDate(STPERArray[2][2]),
-        end: parseDate(STPERArray[2][3]),
-        originalDates: [STPERArray[2][2], STPERArray[2][3]]
-      },
-      thirdQuarter: {
-        name: STPERArray[3][0],
-        start: parseDate(STPERArray[3][2]),
-        end: parseDate(STPERArray[3][3]),
-        originalDates: [STPERArray[3][2], STPERArray[3][3]]
-      },
-      fourthQuarter: {
-        name: STPERArray[4][0],
-        start: parseDate(STPERArray[4][2]),
-        end: parseDate(STPERArray[4][3]),
-        originalDates: [STPERArray[4][2], STPERArray[4][3]]
-      },
-      secondSemester: {
-        name: STPERArray[5][0],
-        start: parseDate(STPERArray[5][2]),
-        end: parseDate(STPERArray[5][3]),
-        originalDates: [STPERArray[5][2], STPERArray[5][3]]
-      },
-      year: {
-        name: STPERArray[6][0],
-        start: parseDate(STPERArray[6][2]),
-        end: parseDate(STPERArray[6][3]),
-        originalDates: [STPERArray[6][2], STPERArray[6][3]]
-      }
-    };
-
-    return {
-      yearTimings: yearTimings as YearTimings,
-      roleNames: (window as any).roleNames as Array<string []>,
-      subjectNames: new Map(Object.entries((window as any).subjDef)) as Subjects
-    }
-  } catch {
-    return {
-      yearTimings: null,
-      roleNames: null,
-      subjectNames: null
-    }
+  }
+  catch {
+        return {yearTimings: null, roleNames: null, subjectNames: null, absentDocsNames: null}
   }
 }
 
@@ -121,7 +53,7 @@ async function scoleRequest(methodName: string, login: string, token: string, ro
     }
     if (args) requestBody.z = args;
 
-    return fetch("https://lycreg.urfu.ru", {
+    return fetch(JOURNAL_URL, {
         method: "POST",
         body: JSON.stringify(requestBody)}
     ).then(response => response.text()).then(body => {
@@ -130,44 +62,13 @@ async function scoleRequest(methodName: string, login: string, token: string, ro
     });
 }
 
-
-const defaultSubjects: Map<string, string> = new Map([
-    ["s110", "Русский язык"],
-    ["s120", "Литература"],
-    ["s210", "Английский язык"],
-    ["s220", "Немецкий язык"],
-    ["s230", "Французский язык"],
-    ["s310", "Искусство"],
-    ["s320", "МХК"],
-    ["s330", "Музыка"],
-    ["s410", "Математика"],
-    ["s420", "Алгебра"],
-    ["s430", "Алгебра и начала анализа"],
-    ["s440", "Геометрия"],
-    ["s450", "Информатика"],
-    ["s510", "История"],
-    ["s520", "История России"],
-    ["s530", "Всеобщая история"],
-    ["s540", "Обществознание"],
-    ["s550", "Экономика"],
-    ["s560", "Право"],
-    ["s570", "География"],
-    ["s610", "Физика"],
-    ["s620", "Астрономия"],
-    ["s630", "Химия"],
-    ["s640", "Биология"],
-    ["s710", "Технология"],
-    ["s810", "Физическая культура"],
-    ["s820", "ОБЖ"]
-]);
-
 var subjectListCache: Subjects = new Map();
 
 export async function getSubjectList(login: string, token: string, role: Role): Promise<Subjects | undefined> {
     return scoleRequest("subjList", login, token, role).then(async subjects => {
         if (subjects) {
             const { subjectNames } = await getJournalVars();
-            (subjectNames || defaultSubjects).forEach((name, id) => subjects.set(id, name));
+            subjectNames?.forEach((name, id) => subjects.set(id, name));
             subjectListCache = subjects;
             return subjects;
         }
@@ -190,7 +91,7 @@ export async function getTeachersList(login: string, token: string, role: Role):
 
 export async function getCaptcha(): Promise<Captcha> {
     let headers: Headers;
-    return fetch("https://lycreg.urfu.ru/cpt.a")
+    return fetch(`${JOURNAL_URL}/cpt.a`)
         .then(response => {
             headers = response.headers
             return response.blob()
@@ -210,7 +111,7 @@ export async function getCaptcha(): Promise<Captcha> {
 }
 
 export async function login(login: string, password: string, role: Role, captcha: number | string, captchaID: number | string): Promise<LoginInfo | undefined> {
-    return fetch("https://lycreg.urfu.ru/", {
+    return fetch(JOURNAL_URL, {
         method: "POST",
         body: JSON.stringify({
             f: "login",
