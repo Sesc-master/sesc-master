@@ -18,6 +18,8 @@ import {parseYearTimings} from "./iniParsing/yearTimings";
 import {parseDefaultSubjects} from "./iniParsing/defaultSubjects";
 import {parseRolesNames} from "./iniParsing/rolesNames";
 import {parseAbsentDocsNames} from "./iniParsing/absentDocs";
+import {resolve_captcha, MonochromePicture, load_raw_num_masks} from "scole-captcha-resolver";
+import RAW_NUM_MASKS from "./raw_num_masks";
 
 const JOURNAL_URL = "https://lycreg.urfu.ru";
 
@@ -90,24 +92,13 @@ export async function getTeachersList(login: string, token: string, role: Role):
 
 
 export async function getCaptcha(): Promise<Captcha> {
-    let headers: Headers;
-    return fetch(`${JOURNAL_URL}/cpt.a`)
-        .then(response => {
-            headers = response.headers
-            return response.blob()
-        })
-        .then(blob => {
-            return new Promise(resolve => {
-                var reader = new FileReader();
-                reader.readAsDataURL(blob);
-                reader.onloadend = () : any => {
-                    resolve({
-                        ID: Number(headers.get("x-cpt")),
-                        data: reader.result as string
-                    });
-                }
-            });
-        });
+    const captcha_response = await fetch(`${JOURNAL_URL}/cpt.a`);
+    const ID = parseInt(captcha_response.headers.get("x-cpt") || "");
+    const captcha = await captcha_response.arrayBuffer();
+    const captcha_monochrome_picture = MonochromePicture.from_png(captcha),
+        data = resolve_captcha(captcha_monochrome_picture, load_raw_num_masks(RAW_NUM_MASKS));
+
+    return { ID, data }
 }
 
 export async function login(login: string, password: string, role: Role, captcha: number | string, captchaID: number | string): Promise<LoginInfo | undefined> {
