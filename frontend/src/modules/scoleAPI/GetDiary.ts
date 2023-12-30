@@ -1,14 +1,11 @@
 import {getJournal, login, getCaptcha, getSubjectList, getTeachersList} from "./ScoleAPI"
-import { Resolve } from "./Resolve"
 import {Role} from "./types/Role";
 
 
 export async function getDiary(userName : string, password : string, type : Role) {
     const {data, ID} : any = await getCaptcha()
 
-    const captchaCode = await Resolve(data)
-
-    const loginData = await login(userName, password, type, captchaCode, ID)
+    const loginData = await login(userName, password, type, data, ID)
 
     if (loginData) {
         await getSubjectList(userName, loginData.token, type);
